@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Patchez</title>
+<style>
+.black {
+    background-color: rgb(0, 0, 0);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+.red {
+    background-color: rgb(230, 10, 0);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+.blue {
+    background-color: rgb(10, 0, 230);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+.pink {
+    background-color: rgb(255, 182, 193);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+</style>
+
+<style>
+body {
+	background-color: lightgray;
+}
+</style>
+
+<header>
+<style>
+header {
+	background-color: whitesmoke;
+	position: fixed;
+	width: 97%;
+	height: 55px;
+	top: 10px;
+}
+</style>
+
+<br/>
+<button id="myProfile" type="button" onclick = window.open("file:///Users/matthewstrimaitis/Desktop/WebDesignDemo/profile.html");> My Profile </button>
+
+<button id="CreateShow" type="button"> Create Show </button>
+<button id="SearchShows" type="button"> Search Shows </button>
+  
+</header>
+</head>
+<body>
+
+<h1>
+</br>
+</br>
+<font size="10" color="darkblue" face="verdana">
+Customize!
+</font>
+</h1>
+
+
+
+<canvas id="myCanvas" 
+	width="800" height="500"
+	style = "border:1px solid #000;"
+	>
+</canvas>
+
+<br/>
+<button id="redPatchButton" type="button" class = "red"> Red </button>
+<button id="blackPatchButton" type="button" class = "black"> Black </button>
+<button id="pinkPatchButton" type="button" class = "pink"> Pink </button>
+
+<br/>
+<image src = "images/blackpatch_copy.png"  alt = "Error message" width = "0" height = "0"> 
+<image src = "images/jean.jpg" alt = "Error message" width = "0" height = "0"> 
+</body>
+
+<script> "use strict"
+window.onload = function() {
+	  var canvas = document.getElementById('myCanvas');
+      
+      var redPatchButton = document.getElementById('redPatchButton');
+      var blackPatchButton = document.getElementById('blackPatchButton');
+      var pinkPatchButton = document.getElementById('pinkPatchButton');
+      var context = canvas.getContext('2d');
+      var finalimage = document.getElementById('finalimage');
+      finalimage.crossOrigin = "Anonymous";
+      /*
+      var dataURL = canvas.toDataURL();
+      console.log(dataURL);
+      */
+      
+      var a = Math.random() * 100;
+      
+      function generatePatch() {
+      	a = Math.random() * 100;
+      }
+      
+       function backdrop(color) {
+      	context.beginPath();
+    	context.moveTo(0,0);
+    	context.lineTo(0,500);
+    	context.lineTo(800,500);
+    	context.lineTo(800,0);
+    	context.closePath();
+    	context.fillStyle = color;
+    	context.fill();
+      }
+      
+      function blackpatch() {
+      	var myImage = new Image();
+      	myImage.src = 'images/blackpatch_copy.png';
+      	myImage.crossOrigin = "Anonymous";
+		context.drawImage(myImage,150,0);
+      }
+      
+      function jeanbackdrop() {
+      	var myImage = new Image();
+      	myImage.src = 'images/jean.jpg';
+      	myImage.crossOrigin = "Anonymous";
+		context.drawImage(myImage,0,0);
+      }
+
+            
+      jeanbackdrop();
+      blackpatch();
+      
+     var dataURL = canvas.toDataURL();
+     finalimage.src = dataURL;
+
+      }
+
+</script>
+<image id = "finalimage" alt = "Final image" width = "100" height = "100">
+</html>

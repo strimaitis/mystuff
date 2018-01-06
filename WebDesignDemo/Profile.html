@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>FirstName LastName</title>
+
+<style>
+body {
+	background-color: lightgray;
+}
+</style>
+</head>
+
+<header>
+<style>
+header {
+	background-color: lightgray;
+	position: fixed;
+	width: 97%;
+	height:100px;
+	top: 0px;
+}
+</style>
+
+<image src = "FullBanner.png" alt = "patchez" width = "575" height = "110"> 
+  
+
+<br/>
+<button id="myProfile" type="button"> My Profile </button>
+<button id="CreateShow" type="button"> Create Show </button>
+<button id="SearchShows" type="button"> Search Shows </button>
+
+  
+</header>
+
+<body>
+
+<!--
+<h1>
+</br>
+</br>
+<font size="10" color="darkblue" face="verdana">
+Choose a template
+</font>
+</h1>
+-->
+
+<image src = "FullBanner.png" alt = "patchez" width = "575" height = "100"> 
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<canvas id="myCanvas" 
+	width="800" height="800"
+	style = "border:1px solid #000;"
+	>
+</canvas>
+
+<image src = "images/jeanjacket.png" alt = "Error message" width = "0" height = "0"> 
+
+</body>
+
+<script> "use strict"
+window.onload = function() {
+	  var canvas = document.getElementById('myCanvas');
+      canvas.style.border = "none";
+      var submitButton = document.getElementById('Submit');
+      var context = canvas.getContext('2d');
+      
+      var myImage = new Image();
+      myImage.src = 'images/jeanjacket.png';
+      myImage.crossOrigin = "Anonymous";
+	  context.drawImage(myImage,0,0);
+      
+      }
+
+</script>
+</html>
