@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta name="description" content="Spinning cube example">
+    <meta charset="utf-8">
+    <title>WebGL Pumpkin</title>
+
+    <script id="vs" type="not-js">
+      attribute vec3 vPosition;
+      attribute vec3 vColor;
+      varying vec3 fColor;
+      uniform mat4 uMVP;
+
+      void main(void) {
+        gl_Position = uMVP * vec4(vPosition, 1.0);
+	    fColor = vColor;
+      }
+    </script>
+
+    <script id="fs" type="not-js">
+      precision highp float;
+      varying vec3 fColor;
+
+      void main(void) {
+	     gl_FragColor = vec4(fColor, 1.0);
+      }
+    </script>
+    
+      </head>
+        <body onload="start()">
+    <canvas id="mycanvas" width="500" height="500"></canvas><br>
+    <input id="slider1" type="range" min="-100" max="100" />
+    <input id="slider2" type="range" min="50" max="100" />
+    <input id="slider3" type="range" min="-100" max="100" />
+    <input id="slider4" type="range" min="-30" max="50" />
+    
+    <script src="http://graphics.cs.wisc.edu/JS/twgl-full.min.js"></script>
+  </body>
+
+	<script>
+
+function start() { "use strict";
+    // http://graphics.cs.wisc.edu/WP/cs559-fall2017/2017/09/15/gadgets-and-demonstrations-uncategorized/
+    // https://twgljs.org/docs/module-twgl_m4.html
+                  
+    // Get canvas, WebGL context, twgl.m4
+    var canvas = document.getElementById("mycanvas");
+    var gl = canvas.getContext("webgl");
+    var m4 = twgl.m4;
+
+    // Sliders at center
+    var slider1 = document.getElementById('slider1');
+    slider1.value = 0; 
+    var slider2 = document.getElementById('slider2');
+    slider2.value = 0;
+    var slider3 = document.getElementById('slider3');
+    slider3.value = 0;
+    var slider4 = document.getElementById('slider4');
+    slider4.value = 20;
+    
+    // Read shader source
+    var vertexSource = document.getElementById("vs").text;
+    var fragmentSource = document.getElementById("fs").text;
+
+    // Compile vertex shader
+    var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader,vertexSource);
+    gl.compileShader(vertexShader);
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+      alert(gl.getShaderInfoLog(vertexShader)); return null; }
+    
+    // Compile fragment shader
+    var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader,fragmentSource);
+    gl.compileShader(fragmentShader);
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+      alert(gl.getShaderInfoLog(fragmentShader)); return null; }
+    
+    // Attach the shaders and link
+    var shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+      alert("Could not initialize shaders"); }
+    gl.useProgram(shaderProgram);	    
+    
+    // with the vertex shader, we need to pass it positions
+    // as an attribute - so set up that communication
+    shaderProgram.PositionAttribute = gl.getAttribLocation(shaderProgram, "vPosition");
+    gl.enableVertexAttribArray(shaderProgram.PositionAttribute);
+    
+    shaderProgram.ColorAttribute = gl.getAttribLocation(shaderProgram, "vColor");
+    gl.enableVertexAttribArray(shaderProgram.ColorAttribute);    
+    
+    // this gives us access to the matrix uniform
+    shaderProgram.MVPmatrix = gl.getUniformLocation(shaderProgram,"uMVP");
+
+    // Data ...
+    
+        var vertexPos = new Float32Array ([
+        0.4,  0.8,  0.3,   0.8,  0.4,  0.3,    0.2,  0.2,  0.0,
+        0.2,  0.2,  0.0,   0.4,  0.8,  0.3,    0.0,  0.2,  0.0,
+        -0.2,  0.2,  0.0,  -0.4,  0.8,  0.3,   0.0,  0.2,  0.0,
+        0.4,  0.8,  0.3,   0.0,  0.2,  0.0,   -0.4,  0.8,  0.3,
+        0.4,  0.8,  0.3,   0.8,  0.4,  0.3,    0.7,  0.7,  1.0, 
+        0.8, 0.4, 0.3,     0.7, 0.7, 1.0,      1.1,  0.0, 1.0,
+        0.4, 0.8, 0.3,     0.7, 0.7, 1.0,      0.0,  1.1, 1.0,
+        0.4, 0.8, 0.3,     0.0, 1.1, 1.0,     -0.4,  0.8, 0.3,
+        0.7, 0.7, 1.0,     0.0, 0.8, 1.6,      0.8,  0.0, 1.6,
+        0.7, 0.7, 1.0,     0.0, 0.8, 1.6,      0.0,  1.1, 1.0,
+        0.7, 0.7, 1.0,     0.8, 0.0, 1.6,      1.1,  0.0, 1.0,
+        0.0, 0.8, 1.6,     0.2, 0.5, 1.75,    -0.2,  0.5, 1.75,
+        0.0, 0.8, 1.6,     0.2, 0.5, 1.75,     0.4,  0.4, 1.6,
+        0.0, 0.8, 1.6,    -0.2, 0.5, 1.75,    -0.4,  0.4, 1.6,
+        0.4, 0.4, 1.6,     0.2, 0.5, 1.75,     0.5,  0.2, 1.75,
+        -0.4, -0.8, 0.3,  -0.8, -0.4, 0.3,    -0.2, -0.2, 0.0,
+        -0.2, -0.2, 0.0,  -0.4, -0.8, 0.3,     0.0, -0.2, 0.0,
+         0.2, -0.2, 0.0,   0.4, -0.8, 0.3,     0.0, -0.2, 0.0,
+        -0.4, -0.8, 0.3,   0.0, -0.2, 0.0,     0.4, -0.8, 0.3,
+        -0.4, -0.8, 0.3,  -0.8, -0.4, 0.3,    -0.7, -0.7, 1.0,
+        -0.8, -0.4, 0.3,  -0.7, -0.7, 1.0,    -1.1,  0.0, 1.0,
+        -0.4, -0.8, 0.3,  -0.7, -0.7, 1.0,     0.0, -1.1, 1.0,
+        -0.4, -0.8, 0.3,   0.0, -1.1, 1.0,     0.4, -0.8, 0.3,
+        -0.7, -0.7, 1.0,   0.0, -0.8, 1.6,    -0.8,  0.0, 1.6,
+        -0.7, -0.7, 1.0,   0.0, -0.8, 1.6,     0.0, -1.1, 1.0,
+        -0.7, -0.7, 1.0,  -0.8,  0.0, 1.6,    -1.1,  0.0, 1.0,
+         0.0, -0.8, 1.6,  -0.2, -0.5, 1.75,    0.2, -0.5, 1.75,
+         0.0, -0.8, 1.6,  -0.2, -0.5, 1.75,   -0.4, -0.4, 1.6,
+         0.0, -0.8, 1.6,   0.2, -0.5, 1.75,    0.4, -0.4, 1.6,
+        -0.4, -0.4, 1.6,  -0.2, -0.5, 1.75,   -0.5, -0.2, 1.75,
+        -0.4,  0.8, 0.3,  -0.8,  0.4, 0.3,    -0.2,  0.2, 0.0,
+        -0.8,  0.4, 0.3,  -0.2,  0.2, 0.0,    -0.2,  0.0, 0.0,
+        -0.8, -0.4, 0.3,  -0.2, -0.2, 0.0,    -0.2,  0.0, 0.0,
+        -0.8, -0.4, 0.3,  -0.8,  0.4, 0.3,    -0.2,  0.0, 0.0,
+        -0.4,  0.8, 0.3,  -0.8,  0.4, 0.3,    -0.7,  0.7, 1.0,
+        -0.8,  0.4, 0.3,  -0.7,  0.7, 1.0,    -1.1,  0.0, 1.0,
+        -0.4,  0.8, 0.3,  -0.7,  0.7, 1.0,     0.0,  1.1, 1.0,
+        -1.1,  0.0, 1.0,  -0.8,  0.4, 0.3,    -0.8, -0.4, 0.3,
+        -0.7,  0.7, 1.0,   0.0,  0.8, 1.6,    -0.8,  0.0, 1.6,
+        -0.7,  0.7, 1.0,   0.0,  0.8, 1.6,     0.0,  1.1, 1.0,
+        -0.7,  0.7, 1.0,  -0.8,  0.0, 1.6,    -1.1,  0.0, 1.0,
+        -0.8,  0.0, 1.6,  -0.5,  0.2, 1.75,   -0.5, -0.2, 1.75,
+        -0.8,  0.0, 1.6,  -0.5, -0.2, 1.75,   -0.4, -0.4, 1.6,
+        -0.8,  0.0, 1.6,  -0.5,  0.2, 1.75,   -0.4,  0.4, 1.6,
+        -0.4,  0.4, 1.6,  -0.2,  0.5, 1.75,   -0.5,  0.2, 1.75,
+
+        
+        0.4,  -0.8, 0.3,   0.8, -0.4, 0.3,     0.2, -0.2, 0.0,
+        0.8,  -0.4, 0.3,   0.2, -0.2, 0.0,     0.2,  0.0, 0.0,
+        0.8,   0.4, 0.3,   0.2,  0.2, 0.0,     0.2,  0.0, 0.0,
+        0.8,   0.4, 0.3,   0.8, -0.4, 0.3,     0.2,  0.0, 0.0,
+        0.4,  -0.8, 0.3,   0.8, -0.4, 0.3,     0.7, -0.7, 1.0,
+        0.8,  -0.4, 0.3,   0.7, -0.7, 1.0,     1.1,  0.0, 1.0,
+        0.4,  -0.8, 0.3,   0.7, -0.7, 1.0,     0.0, -1.1, 1.0,
+        1.1,   0.0, 1.0,   0.8, -0.4, 0.3,     0.8,  0.4, 0.3,
+        0.7,  -0.7, 1.0,   0.0, -0.8, 1.6,     0.8,  0.0, 1.6,
+        0.7,  -0.7, 1.0,   0.0, -0.8, 1.6,     0.0, -1.1, 1.0,
+        0.7,  -0.7, 1.0,   0.8,  0.0, 1.6,     1.1,  0.0, 1.0,
+        0.8,   0.0, 1.6,   0.5,  0.2, 1.75,    0.5, -0.2, 1.75,
+        0.8,   0.0, 1.6,   0.5,  0.2, 1.75,    0.4,  0.4, 1.6,
+        0.8,   0.0, 1.6,   0.5, -0.2, 1.75,    0.4, -0.4, 1.6,
+        0.4,  -0.4, 1.6,   0.2, -0.5, 1.75,    0.5, -0.2, 1.75,
+      
+        // [20,20,180],[-20,20,180],[35,0,200]
+        0.2,   0.2, 1.75,  -0.2,  0.2, 1.75,     0.35, 0.0, 2.0,
+        // [-20,-20,180],[-20,20,180],[35,0,200]
+        -0.2, -0.2, 1.75,  -0.2,  0.2, 1.75,     0.35, 0.0, 2.0,
+        // [35,0,200],[50,-10,185],[20,20,180]
+        0.35,  0.0, 2.0,   0.5, -0.1, 1.75,    0.2,  0.2, 1.75,
+        // [50,-10,185],[35,0,200],[-20,-20,180]
+        0.5,  -0.1, 1.75,  0.35, 0.0, 2.0,    -0.2, -0.2, 1.75,
+      
+        0.5,  0.2, 1.75,  0.5, -0.2, 1.75,    -0.5,  0.2, 1.75,
+        -0.5, 0.2, 1.75, -0.5, -0.2, 1.75,     0.5, -0.2, 1.75,
+        
+        -0.5, 0.2, 1.75, -0.2,  0.2, 1.75,    -0.2,  0.5, 1.75,
+        0.5, 0.2, 1.75,   0.2,  0.2, 1.75,     0.2,  0.5, 1.75,
+       -0.5, -0.2, 1.75, -0.2, -0.2, 1.75,    -0.2,  -0.5, 1.75,
+        0.5, -0.2, 1.75,  0.2, -0.2, 1.75,     0.2,  -0.5, 1.75,
+        
+        -0.2, 0.2, 1.75,  0.2,  0.2, 1.75,     0.2,  0.5, 1.75,
+        0.2, -0.2, 1.75, -0.2, -0.2, 1.75,    -0.2,  -0.5, 1.75,
+       -0.2,  0.2, 1.75, -0.2,  0.5, 1.75,     0.2,  0.5, 1.75,
+        0.2, -0.2, 1.75,  0.2, -0.5, 1.75,    -0.2, -0.5, 1.75
+        ]);
+
+    // vertex colors
+    var vertexColors = new Float32Array ([
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0, 
+        1.0, 0.7, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.7, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.7, 0.0,   1.0, 0.6, 0.0,
+        // 2nd btm left
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.6, 0.0,
+        // 3rd btm left
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+        // Btm left
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.5, 0.0,
+        // Btm
+        1.0, 0.6, 0.0,   1.0, 0.5, 0.0,   1.0, 0.6, 0.0, 
+        // 2nd upp left
+        1.0, 0.6, 0.0,   1.0, 0.5, 0.0,   1.0, 0.7, 0.0,
+        // Upp left
+        1.0, 0.6, 0.0,   1.0, 0.5, 0.0,   1.0, 0.5, 0.0,
+        // 3rd upp left
+        1.0, 0.6, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+        // MTR
+        1.0, 0.5, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.5, 0.0,   1.0, 0.7, 0.0,   1.0, 0.6, 0.0,
+        1.0, 0.5, 0.0,   1.0, 0.7, 0.0,   1.0, 0.6, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+        
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.6, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.6, 0.0, 
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.6, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.6, 0.0,
+        // 75 btm
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.5, 0.0,
+        // 50 btm right
+        1.0, 0.6, 0.0,   1.0, 0.5, 0.0,   1.0, 0.7, 0.0,
+        // 100 btm left
+        1.0, 0.6, 0.0,   1.0, 0.5, 0.0,   1.0, 0.5, 0.0,
+        // 100 btm
+        1.0, 0.6, 0.0,   1.0, 0.5, 0.0,   1.0, 0.6, 0.0,
+        // 75 top
+        1.0, 0.5, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+        // 100 upp left
+        1.0, 0.5, 0.0,   1.0, 0.7, 0.0,   1.0, 0.5, 0.0,
+        // 50 top right
+        1.0, 0.5, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+        // MTR 100
+        1.0, 0.7, 0.0,   1.0, 0.6, 0.0,   1.0, 0.6, 0.0,
+        1.0, 0.7, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.7, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.7, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+      
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+        // 2nd btm right
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.6, 0.0,
+        // 3rd btm right
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+        // Btm right
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.5, 0.0,
+        // 50 btm
+        1.0, 0.7, 0.0,   1.0, 0.6, 0.0,   1.0, 0.6, 0.0,
+        // 2nd top right
+        1.0, 0.6, 0.0,   1.0, 0.5, 0.0,   1.0, 0.7, 0.0,
+        // Top right
+        1.0, 0.6, 0.0,   1.0, 0.5, 0.0,   1.0, 0.5, 0.0,
+        // 3rd top right 
+        1.0, 0.6, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+      
+        1.0, 0.7, 0.0,   1.0, 0.5, 0.0,   1.0, 0.7, 0.0,
+        
+        1.0, 0.7, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0, 
+        1.0, 0.7, 0.0,   1.0, 0.5, 0.0,   1.0, 0.6, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.7, 0.0,   1.0, 0.5, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.6, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+        // -75 btm
+        1.0, 0.6, 0.0,   1.0, 0.6, 0.0,   1.0, 0.5, 0.0,
+        // -50 btm left
+        1.0, 0.6, 0.0,   1.0, 0.5, 0.0,   1.0, 0.7, 0.0,
+        // 100 btm right
+        1.0, 0.6, 0.0,   1.0, 0.5, 0.0,   1.0, 0.5, 0.0,
+      
+        // -50 btm
+        1.0, 0.7, 0.0,   1.0, 0.6, 0.0,   1.0, 0.6, 0.0,
+        // -75 top
+        1.0, 0.5, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+        // 100 upp right
+        1.0, 0.5, 0.0,   1.0, 0.7, 0.0,   1.0, 0.5, 0.0,
+        // -50 upp left
+        1.0, 0.5, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.7, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+        1.0, 0.7, 0.0,   1.0, 0.7, 0.0,   1.0, 0.6, 0.0,
+        1.0, 0.7, 0.0,   1.0, 0.7, 0.0,   1.0, 0.7, 0.0,
+        
+        1.0, 0.7, 0.0,   1.0, 0.6, 0.0,   1.0, 0.7, 0.0,
+      
+        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 0.2, 0.0,
+        0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 0.2, 0.0,
+        0.0, 0.2, 0.0,   0.0, 0.7, 0.0,   0.0, 1.0, 0.0,
+        0.0, 0.8, 0.0,   0.0, 0.2, 0.0,   0.0, 1.0, 0.0,
+        1.0, 1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, 1.0,
+        0.0, 1.0, 1.0,   0.0, 1.0, 1.0,   1.0, 1.0, 1.0,
+        0.0, 1.0, 1.0,   0.0, 1.0, 1.0,   1.0, 1.0, 1.0,
+        0.0, 1.0, 1.0,   0.0, 1.0, 1.0,   1.0, 1.0, 1.0,
+        0.0, 1.0, 1.0,   0.0, 1.0, 1.0,   1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0,   1.0, 1.0, 1.0,   1.0, 1.0, 1.0
+        ]);
+    
+    // we need to put the vertices into a buffer so we can
+    // block transfer them to the graphics hardware
+    var trianglePosBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, trianglePosBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertexPos, gl.STATIC_DRAW);
+    trianglePosBuffer.itemSize = 3;
+    // Triangle units (192)
+    trianglePosBuffer.numItems = 222;
+    
+    // a buffer for colors
+    var colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertexColors, gl.STATIC_DRAW);
+    colorBuffer.itemSize = 3;
+    colorBuffer.numItems = 222;
+
+
+    // Scene (re-)draw routine
+    function draw() {
+    
+        // Translate slider values to angles in the [-pi,pi] interval
+        var angle1 = slider1.value*0.01*Math.PI;
+        var negpi = -Math.PI;
+        var angle2 = slider3.value*0.01*Math.PI;
+        var angle3 = slider4.value*0.01*Math.PI;
+        
+        // Circle around the y-axis
+        var eye = [300*Math.sin(angle1),300.0*Math.sin(angle3),300.0*Math.cos(angle1)];
+        var target = [0,100,0];
+        var up = [0,1,0];
+        
+        var tModel = m4.multiply(m4.translation([slider3.value,slider3.value,0]),m4.axisRotation([0,1,1],negpi));
+        var tModel2 = m4.multiply(m4.scaling([slider2.value,slider2.value,slider2.value]),tModel);
+        
+        var tCamera = m4.inverse(m4.lookAt(eye,target,up));
+        var tProjection = m4.perspective(Math.PI/4,1,10,1000);
+        
+        var tMVP=m4.multiply(m4.multiply(tModel2,tCamera),tProjection);
+        
+        // Clear screen, prepare for rendering
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.enable(gl.DEPTH_TEST);
+      // Remove color buffer to eliminate black backdrop
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    
+        // Set up uniforms & attributes
+        gl.uniformMatrix4fv(shaderProgram.MVPmatrix,false,tMVP);
+                 
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.vertexAttribPointer(shaderProgram.ColorAttribute, colorBuffer.itemSize,
+          gl.FLOAT,false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, trianglePosBuffer);
+        gl.vertexAttribPointer(shaderProgram.PositionAttribute, trianglePosBuffer.itemSize,
+          gl.FLOAT, false, 0, 0);
+
+	    // Do the drawing
+        gl.drawArrays(gl.TRIANGLES, 0, trianglePosBuffer.numItems);
+    }
+
+    slider1.addEventListener("input",draw);
+    slider2.addEventListener("input",draw);
+    slider3.addEventListener("input",draw);
+    slider4.addEventListener("input",draw);
+    draw();
+}
+
+</script>
+</html>
