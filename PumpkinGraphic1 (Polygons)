@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="description" content="[add your bin description]">
+  <meta charset="utf-8">
+  <title>Pumpkin</title>
+  <!-- you need to load TWGL from somewhere -
+    -- this grabs it from the CS server, which
+    -- might take a while
+    -->
+  <canvas id="myCanvas" 
+	   width="400" height="400"
+	   style="border:1px solid #000;">
+  </canvas><br/>
+  <input id="slider1" type="range" min="-100" max="100" />
+  <br/>
+  <input id="slider4" type="range" min="-250" max="250" />
+  <input id="slider5" type="range" min="0" max="300" />
+  <input id="slider3" type="range" min="-250" max="250" />
+  </br>
+  <input id="slider2" type="range" min="0" max="1" />
+  <script src="http://graphics.cs.wisc.edu/JS/twgl-full.min.js"></script>
+</head>
+<body>
+<script> "use strict"
+function setup() { "use strict";
+  // Colors:   https://www.w3schools.com/tags/ref_colornames.asp
+  // Array Sort:   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+  // HW4 Extra Links (Piazza):   https://piazza.com/class/j76kpnkoiik1dv?cid=49
+  // Perspective Viewing Toy 3D:  http://graphics.cs.wisc.edu/WP/cs559-fall2017/2017/09/15/gadgets-and-demonstrations-uncategorized/
+  var canvas = document.getElementById('myCanvas');
+  var context = canvas.getContext('2d');
+  var m4 = twgl.m4;
+  
+  var slider1 = document.getElementById('slider1');
+  slider1.value = 0;             
+  var slider2 = document.getElementById('slider2');
+  slider2.value = 0;
+  var slider3 = document.getElementById('slider3');
+  slider3.value = 0;
+  var slider4 = document.getElementById('slider4');
+  slider4.value = 250;
+  var slider5 = document.getElementById('slider5');
+  slider5.value = 100;
+
+  var triangles = [];
+
+  function initGeometry(){
+    // Quad 1
+      triangles.push([[40,80,30],[80,40,30],[20,20,0],"orange",0.0]);
+      triangles.push([[20,20,0],[40,80,30],[0,20,0],"saddlebrown",0.0]);
+      triangles.push([[-20,20,0],[-40,80,30],[0,20,0],"saddlebrown",0.0]);
+      triangles.push([[40,80,30],[0,20,0],[-40,80,30],"chocolate",0.0]);
+      
+      
+      triangles.push([[40,80,30],[80,40,30],[70,70,100],"orange",0.0]);
+      triangles.push([[80,40,30],[70,70,100],[110,0,100],"chocolate",0.0]);
+      triangles.push([[40,80,30],[70,70,100],[0,110,100],"chocolate",0.0]);
+      triangles.push([[40,80,30],[0,110,100],[-40,80,30],"saddlebrown",0.0]);
+    
+      triangles.push([[70,70,100],[0,80,160],[80,0,160],"darkorange",0.0]);
+      triangles.push([[70,70,100],[0,80,160],[0,110,100],"orange",0.0]);
+      triangles.push([[70,70,100],[80,0,160],[110,0,100],"orange",0.0]);
+    
+      triangles.push([[0,80,160],[20,50,175],[-20,50,175],"darkorange",0.0]);
+      triangles.push([[0,80,160],[20,50,175],[40,40,160],"sandybrown",0.0]);
+      triangles.push([[0,80,160],[-20,50,175],[-40,40,160],"sandybrown",0.0]);
+      triangles.push([[40,40,160],[20,50,175],[50,20,175],"orange",0.0]); 
+    
+     // triangles.push([[0,80,160],[-80,0,160],[80,0,160],"darkorange",0.0]);
+    //  triangles.push([[0,-80,160],[-80,0,160],[80,0,160],"darkorange",0.0]);
+       
+      // Quad 3 
+      triangles.push([[-40,-80,30],[-80,-40,30],[-20,-20,0],"orange",0.0]);
+      triangles.push([[-20,-20,0],[-40,-80,30],[0,-20,0],"saddlebrown",0.0]);
+      triangles.push([[20,-20,0],[40,-80,30],[0,-20,0],"saddlebrown",0.0]);
+      triangles.push([[-40,-80,30],[0,-20,0],[40,-80,30],"chocolate",0.0]);
+    
+    
+      triangles.push([[-40,-80,30],[-80,-40,30],[-70,-70,100],"orange",0.0]);
+      triangles.push([[-80,-40,30],[-70,-70,100],[-110,0,100],"chocolate",0.0]);
+      triangles.push([[-40,-80,30],[-70,-70,100],[0,-110,100],"chocolate",0.0]);
+      triangles.push([[-40,-80,30],[0,-110,100],[40,-80,30],"saddlebrown",0.0]);
+    
+      triangles.push([[-70,-70,100],[0,-80,160],[-80,0,160],"darkorange",0.0]);
+      triangles.push([[-70,-70,100],[0,-80,160],[0,-110,100],"orange",0.0]);
+      triangles.push([[-70,-70,100],[-80,0,160],[-110,0,100],"orange",0.0]);
+    
+      triangles.push([[0,-80,160],[-20,-50,175],[20,-50,175],"darkorange",0.0]);
+      triangles.push([[0,-80,160],[-20,-50,175],[-40,-40,160],"sandybrown",0.0]);
+      triangles.push([[0,-80,160],[20,-50,175],[40,-40,160],"sandybrown",0.0]);
+      triangles.push([[-40,-40,160],[-20,-50,175],[-50,-20,175],"orange",0.0]);
+    
+
+      
+      // Quad 2
+      triangles.push([[-40,80,30],[-80,40,30],[-20,20,0],"orange",0.0]);
+      triangles.push([[-80,40,30],[-20,20,0],[-20,0,0],"saddlebrown",0.0]);
+      triangles.push([[-80,-40,30],[-20,-20,0],[-20,0,0],"saddlebrown",0.0]);
+      triangles.push([[-80,-40,30],[-80,40,30],[-20,0,0],"chocolate",0.0]);
+      
+    
+      triangles.push([[-40,80,30],[-80,40,30],[-70,70,100],"orange",0.0]);
+      triangles.push([[-80,40,30],[-70,70,100],[-110,0,100],"chocolate",0.0]);
+      triangles.push([[-40,80,30],[-70,70,100],[0,110,100],"chocolate",0.0]);
+      triangles.push([[-110,0,100],[-80,40,30],[-80,-40,30],"saddlebrown",0.0]);
+    
+      triangles.push([[-70,70,100],[0,80,160],[-80,0,160],"orange",0.0]);
+      triangles.push([[-70,70,100],[0,80,160],[0,110,100],"darkorange",0.0]);
+      triangles.push([[-70,70,100],[-80,0,160],[-110,0,100],"darkorange",0.0]);
+
+      triangles.push([[-80,0,160],[-50,20,175],[-50,-20,175],"darkorange",0.0]);
+      triangles.push([[-80,0,160],[-50,-20,175],[-40,-40,160],"sandybrown",0.0]);
+      triangles.push([[-80,0,160],[-50,20,175],[-40,40,160],"sandybrown",0.0]);
+      triangles.push([[-40,40,160],[-20,50,175],[-50,20,175],"orange",0.0]);
+    
+
+
+      // Quad 4  
+      triangles.push([[40,-80,30],[80,-40,30],[20,-20,0],"orange",0.0]);
+      triangles.push([[80,-40,30],[20,-20,0],[20,0,0],"saddlebrown",0.0]);
+      triangles.push([[80,40,30],[20,20,0],[20,0,0],"saddlebrown",0.0]);
+      triangles.push([[80,40,30],[80,-40,30],[20,0,0],"chocolate",0.0]);
+    
+      triangles.push([[40,-80,30],[80,-40,30],[70,-70,100],"orange",0.0]);
+      triangles.push([[80,-40,30],[70,-70,100],[110,0,100],"chocolate",0.0]);
+      triangles.push([[40,-80,30],[70,-70,100],[0,-110,100],"chocolate",0.0]);
+      triangles.push([[110,0,100],[80,-40,30],[80,40,30],"saddlebrown",0.0]);
+      triangles.push([[70,-70,100],[0,-80,160],[80,0,160],"orange",0.0]);
+      triangles.push([[70,-70,100],[0,-80,160],[0,-110,100],"darkorange",0.0]);
+      triangles.push([[70,-70,100],[80,0,160],[110,0,100],"darkorange",0.0]);
+      triangles.push([[80,0,160],[50,20,175],[50,-20,175],"darkorange",0.0]);
+      triangles.push([[80,0,160],[50,20,175],[40,40,160],"sandybrown",0.0]);
+      triangles.push([[80,0,160],[50,-20,175],[40,-40,160],"sandybrown",0.0]);
+      triangles.push([[40,-40,160],[20,-50,175],[50,-20,175],"orange",0.0]);
+    
+      
+    
+      // Stem
+      triangles.push([[20,20,180],[-20,20,180],[35,0,200],"darkgreen",0.0]);
+      triangles.push([[-20,-20,180],[-20,20,180],[35,0,200],"green",0.0]);
+      triangles.push([[35,0,200],[50,-10,185],[20,20,180],"green",0.0]);
+      triangles.push([[50,-10,185],[35,0,200],[-20,-20,180],"darkgreen",0.0]);
+    
+  }
+                  
+  function moveToTx(x,y,z,Tx) {
+    var loc = [x,y,z];
+    var locTx = m4.transformPoint(Tx,loc);
+    context.moveTo(locTx[0],locTx[1]);
+  }
+
+  function lineToTx(x,y,z,Tx) {
+    var loc = [x,y,z];
+    var locTx = m4.transformPoint(Tx,loc);
+    context.lineTo(locTx[0],locTx[1]);
+  }
+  
+  function drawAxes(Tx) {
+    // A little cross on the front face, for identification
+    moveToTx(0,0,0,Tx);lineToTx(100,0,0,Tx);context.stroke();
+    moveToTx(0,0,0,Tx);lineToTx(0,150,0,Tx);context.stroke();
+    moveToTx(0,0,0,Tx);lineToTx(0,0,200,Tx);context.stroke();
+  }
+
+  function drawTriangle(triangle,Tx){
+     context.beginPath();
+     context.fillStyle=triangle[3];
+     moveToTx(triangle[0][0],triangle[0][1],triangle[0][2],Tx); 
+     lineToTx(triangle[1][0],triangle[1][1],triangle[1][2],Tx); 
+     lineToTx(triangle[2][0],triangle[2][1],triangle[2][2],Tx); 
+     context.closePath(); 
+     context.fill();
+  }
+
+                  
+  function drawScene(Tx) {
+    for(var i=0;i<triangles.length;i++)
+       drawTriangle(triangles[i],Tx);
+  }
+  
+  function draw() {
+    // hack to clear the canvas fast
+    canvas.width = canvas.width;
+    
+    var angle1 = slider1.value*0.01*Math.PI;
+    var angle2 = slider2.value*0.01*Math.PI;
+    var translatex = slider3.value;
+    var translatey = slider4.value;
+    var translatez = slider5.value;
+    var axis = [1,0,0];
+  
+    var Tmodel=m4.axisRotation(axis,angle2);
+    var Ttranslate = m4.translation([-translatex,translatey,translatez]); 
+
+    var eye=[700*Math.sin(angle1),700*Math.cos(angle1),400];
+    var target=[0,0,translatez];  
+    var up=[0,0,1];
+    var Tcamera=m4.inverse(m4.lookAt(eye,target,up));
+
+     if (slider2.value == 1) { 
+       var Tprojection=m4.ortho(-250,250,-200,300,-2,2);
+     } else { 
+       var Tprojection = m4.perspective(Math.PI/4,1,1,800);
+     } 
+    
+    var Tviewport=m4.multiply(m4.scaling([200,-200,200]),m4.translation([200,200,0]));
+    
+    var Tcpv=m4.multiply(m4.multiply(Tcamera,Tprojection),Tviewport);
+    var Tmcp=m4.multiply(m4.multiply(Tmodel,Tcamera),Tprojection);
+    var Tmc=m4.multiply(Tmodel,Tcamera);
+    var Tmcpvt = m4.multiply(Ttranslate,Tcpv); 
+
+    for(var i=0;i<triangles.length;i++){ 
+      var cam = m4.transformPoint(Tmc,triangles[i][1]);
+      var point = m4.transformPoint(Tmc,triangles[i][0]);
+      var point1 = m4.transformPoint(Tmc,triangles[i][2]);
+      triangles[i][4] = Math.min(cam[2], point[2], point1[2]);
+      // compare between i4 and j4
+      triangles.sort(function(a, b) { 
+      return a[4] - b[4];
+      });
+    }
+    drawScene(Tmcpvt);
+  }
+
+  slider1.addEventListener("input",draw);
+  slider2.addEventListener("input",draw);
+  slider3.addEventListener("input",draw);
+  slider4.addEventListener("input",draw);
+  slider5.addEventListener("input",draw);
+  initGeometry();
+  draw();
+
+}
+window.onload = setup;
+</script>
+</body>
+</html>
